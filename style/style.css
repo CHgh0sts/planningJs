@@ -1,0 +1,373 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    user-select: none;
+}
+body {
+    background: #f3eeee;
+    color: #121313;
+    position: relative;
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+}
+.topBar {
+    box-shadow: 0 0 5px gray;
+}
+.isLoading {
+    display: flex !important;
+}
+.btn-menu {
+    position: relative;
+    background: white;
+    padding: .5vh 1vh;
+}
+.btn-menu:hover {
+    background: rgb(225, 222, 222);
+}
+.containerBox {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: calc(100dvh - 40px);
+    margin-top: 40px;
+}
+.LeftBar, .RightBar {
+    position: relative;
+    height: 100%;
+    width: 0;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    transition: width .2s;
+}
+.LeftBar *, .RightBar * {
+    text-wrap: nowrap;
+}
+.LeftBar.open, .RightBar.open {
+    width: 35vh;
+}
+.dayNumber {
+    position: relative;
+    width: 3.5vh;
+    height: 3.5vh;
+    border: .15vh solid transparent;
+    border-radius: 3vh;
+    margin: .5vh;
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.dayNumber.inDay {
+    border: .15vh solid rgb(59 130 246);
+    background: rgb(59 130 246);
+    color: white;
+}
+.btn-view  {
+    padding: 1vh;
+    margin: 0 .5vh;
+}
+.btn-view.active {
+    background: rgb(59 130 246);
+    color: white;
+}
+.dayNumber {
+    height: 3vh;
+    margin: .5vh 0;
+}
+.listHeure {
+    margin-top: calc(10.6vh + 0.25rem);
+    height: calc(5vh * 24);
+}
+.event {
+    position: relative;
+    font-size: 12px;
+    width: 98%;
+    padding-left: 2vh;
+    background: var(--c);
+    overflow-x: hidden;
+}
+.event::before {
+    position: absolute;
+    content: '';
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, .85);
+}
+.event::after {
+    position: absolute;
+    transform: translate(0, -50%);
+    content: '';
+    left: .5vh;
+    top: 50%;
+    width: 1vh;
+    height: 1vh;
+    border-radius: 50%;
+    background: var(--c);
+}
+.event.fullDay {
+    position: relative;
+    font-size: 12px;
+    width: 95%;
+    padding-left: 1vh;
+    background: var(--c);
+}
+.event.fullDay::before {
+    position: absolute;
+    content: '';
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, .7);
+}
+.event.fullDay::after {
+    position: absolute;
+    transform: translate(0, 0);
+    content: '';
+    left: 0;
+    top: 0;
+    width: .7vh;
+    height: 100%;
+    border-radius: 0;
+    background: var(--c);
+}
+.event.listing {
+    height: 6vh;
+    width: 95%;
+    margin: .5vh auto;
+    padding: .25em !important;
+    box-shadow: 0 0 5px black;
+}
+.event.listing::after {
+    display: none;
+}
+.event.editable {
+    position: absolute;
+    padding-left: .5vh;
+    width: 100%;
+    overflow: visible;
+}
+.event.editable::before {
+    background: rgba(255, 255, 255, .6);
+}
+.event.editable::after {
+    display: none;
+}
+.event * {
+    position: relative;
+    text-wrap: nowrap;
+    z-index: 2;
+}
+.btnSize {
+    position: absolute;
+    transform: translate(-50%, 0);
+    display: none;
+    left: 50%;
+    width: 1vh;
+    height: 1vh;
+    background-color: white;
+    box-shadow: 0 0 2px black;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+}
+.btnSize:hover {
+    background: rgb(59, 130, 246);
+}
+.btnSize.Top {
+    top: -.5vh;
+}
+.btnSize.Bottom {
+    bottom: -.5vh;
+}
+.event:not(.isDrag):hover .btnSize {
+    display: flex;
+}
+.event.notDrag {
+    pointer-events: none;
+    opacity: .3 !important;
+}
+.event.groupe {
+    --c: gray !important;
+}
+.user {
+    position: relative;
+    padding: 0 1vh;
+    border: .15vh solid var(--c);
+    color: var(--c);
+    width: 95%;
+    margin: .5vh auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 1vh;
+}
+.user.active p {
+    text-shadow: 0 0 5px black;
+}
+.user.active {
+    background: var(--c);
+    color: white;
+}
+.user input {
+    position: relative;
+    display: none;
+}
+.user label {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+}
+.user.active label {
+    border-radius: 5vh;
+}
+.topBarCallendar {
+    position: sticky;
+    width: 100%;
+    top: 0;
+    height: 5vh;
+    margin-top: .2vh;
+    margin-bottom: .5vh;
+    display: flex;
+    align-items: center;
+    background: white;
+    z-index: 50;
+    justify-content: space-between;
+    box-shadow: 0 0 5px gray;
+}
+.topBarCallendar .left, .topBarCallendar .right {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.topBarCallendar button {
+    height: 3vh;
+    width: fit-content;
+    padding: 2vh;
+    margin: 0 1vh;
+}
+.topBarCallendar button.inDay {
+    margin: 0 1vh 0 0;
+}
+.topBarCallendar .month {
+    margin-right: 1vh;
+}
+.topBarCallendar span {
+    width: fit-content;
+}
+.hours-container {
+    overflow-x: hidden;
+}
+.btnRightBar {
+    position: absolute;
+    bottom: 0;
+    right: 100%;
+    border: .1vh solid black;
+    padding: .5vh;
+    font-size: 1.2vh;
+    height: 3vh;
+    margin: 1vh;
+}
+.btnRightBar svg {
+    height: 2vh !important;
+}
+.LeftBar {
+    overflow: hidden;
+}
+.RightBar {
+    padding: 2vh 0;
+}
+.RightBar.open {
+    width: 40vh;
+}
+.noEvent {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    overflow: hidden;
+}
+.noEvent svg {
+    width: auto;
+    height: 15vh;
+    margin-bottom: 2vh;
+    opacity: .3;
+}
+.events-container {
+    position: relative;
+    height: 11vh;
+}
+.btnProfil {
+    position: relative;
+    width: 4vh;
+    height: 4vh;
+    background: #e7e5e5;
+    outline: none;
+    border-radius: 5vh;
+    font-size: 1.5vh;
+}
+.btnProfil:hover {
+    background: #bbb9b9;
+}
+.logOut {
+    background-color: crimson;
+    color: white;
+}
+.logOut:hover {
+    background-color: darkred;
+    color: white;
+}
+.logOut svg, .myProfil svg {
+    height: 2vh;
+}
+.more-events {
+    position: relative;
+    background: rgb(230, 229, 229);
+    padding: .5vh;
+}
+.selectedUser {
+    border: .15vh solid var(--c);
+    border-radius: 1vh;
+    padding: 0 1vh;
+    margin: .5vh;
+}
+.userSelectedBox {
+    flex-wrap: wrap;
+}
+.deleteUserSelected {
+    background: crimson;
+    color: white;
+    width: 3vh;
+    height: 3vh;
+    padding: 0;
+    margin: .5vh;
+    box-shadow: none;
+}
+.deleteUserSelected:hover {
+    background: darkred;
+}
+.createUser {
+    padding: 0;
+    box-shadow: none;
+    height: fit-content;
+    background: transparent;
+}
+.createUser:hover {
+    background-color: transparent;
+}
+.iconInput {
+    height: 50%;
+    display: flex;
+    align-items: center;
+}

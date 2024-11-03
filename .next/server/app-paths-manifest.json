@@ -1,0 +1,11 @@
+{
+  "/page": "app/page.js",
+  "/api/events/[id]/route": "app/api/events/[id]/route.js",
+  "/api/events/route": "app/api/events/route.js",
+  "/login/page": "app/login/page.js",
+  "/api/account/verify/route": "app/api/account/verify/route.js",
+  "/api/eventsForDay/route": "app/api/eventsForDay/route.js",
+  "/api/eventsUpdate/route": "app/api/eventsUpdate/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/api/users/route": "app/api/users/route.js"
+}
