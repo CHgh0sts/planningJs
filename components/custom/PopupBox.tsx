@@ -210,7 +210,7 @@ export const PopupBox: React.FC<PopupBoxProps> = ({ event = null, heureAddEvent 
                     </Select>
                     <div className="userSelectedBox mt-2 flex w-full">
                       {selectedUsers.map((user) => (
-                        <div style={{ borderColor: user.color, '--c': user.color }} key={user.id} className={`selectedUser flex items-center space-x-2`}>
+                        <div style={{ borderColor: user.color, "--c": user.color }} key={user.id} className={`selectedUser flex items-center space-x-2`}>
                           <span>{user.username}</span>
                           <Button className='deleteUserSelected' onClick={() => handleRemoveUser(user.id)}>X</Button>
                         </div>
