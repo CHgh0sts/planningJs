@@ -1,4 +1,4 @@
-// File: /Users/chghosts/Developpement/planningJs/app/api/account/verify/route.ts
+// File: /Users/chghosts/Developpement/planningJs/app/api/account/verify/route.js
 import * as entry from '../../../../../../app/api/account/verify/route.js'
 import type { NextRequest } from 'next/server.js'
 

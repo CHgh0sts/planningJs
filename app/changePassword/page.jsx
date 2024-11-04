@@ -7,14 +7,14 @@ import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function ChangePassword() {
-  const [currentPassword, setCurrentPassword] = useState<string>("");
-  const [newPassword, setNewPassword] = useState<string>("");
-  const [confirmNewPassword, setConfirmNewPassword] = useState<string>("");
-  const [showCurrentPassword, setShowCurrentPassword] = useState<boolean>(false);
-  const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
-  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const router = useRouter();
 
   const handleSubmit = async (e) => {

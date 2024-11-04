@@ -1,4 +1,4 @@
-// File: /Users/chghosts/Developpement/planningJs/app/api/eventsForDay/route.ts
+// File: /Users/chghosts/Developpement/planningJs/app/api/eventsForDay/route.js
 import * as entry from '../../../../../app/api/eventsForDay/route.js'
 import type { NextRequest } from 'next/server.js'
 
