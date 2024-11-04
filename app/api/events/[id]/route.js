@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request, { params }) {
   const eventId = parseInt(params.id);
   const { date, debutAt } = await request.json();
 
@@ -16,7 +16,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       return NextResponse.json({ error: 'Événement non trouvé' }, { status: 404 });
     }
 
-    const updatedData: any = {};
+    const updatedData = {};
 
     if (date) {
       const newDate = new Date(date);

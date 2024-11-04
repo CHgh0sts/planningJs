@@ -17,7 +17,7 @@ export default function ChangePassword() {
   const [success, setSuccess] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
@@ -50,7 +50,7 @@ export default function ChangePassword() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
-    } catch (error: any) {
+    } catch (error) {
       setError(error.message);
     }
   };

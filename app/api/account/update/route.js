@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-export async function PUT(request: NextRequest) {
+export async function PUT(request) {
   const token = request.headers.get('Authorization')?.replace('Bearer ', '');
 
   if (!token) {

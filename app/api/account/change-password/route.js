@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-export async function POST(request: NextRequest) { // Assure-toi que le verbe HTTP utilisé correspond à l'appel dans le front-end
+export async function POST(request) { // Assure-toi que le verbe HTTP utilisé correspond à l'appel dans le front-end
   const token = request.headers.get('Authorization')?.replace('Bearer ', '');
 
   if (!token) {

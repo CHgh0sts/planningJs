@@ -12,7 +12,7 @@ function generateRandomPassword(length = 8) {
   }
   return password;
 }
-export async function GET(request: NextRequest) {
+export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const username = searchParams.get('username');
 
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request) {
   try {
     const { username, color } = await request.json();
 
