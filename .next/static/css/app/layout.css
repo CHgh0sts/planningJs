@@ -745,9 +745,6 @@ video {
 .ml-2 {
   margin-left: 0.5rem;
 }
-.ml-\[\.5vh\] {
-  margin-left: .5vh;
-}
 .ml-auto {
   margin-left: auto;
 }
