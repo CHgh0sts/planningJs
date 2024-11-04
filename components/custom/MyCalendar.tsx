@@ -7,17 +7,9 @@ import { Event } from './Event';
 import { CalendarTopBar } from './CallendarTopBar';
 import { Spinner } from './Spinner';
 
-interface DayInfo {
-  day: number;
-  date?: Date;
-  isCurrentMonth: boolean;
-  isToday?: boolean;
-  events: any[];
-}
-
 export const MyCalendar = () => {
-  const { actualDate, setActualEditDate, calendarView, idUserList, ListUsers, listEvent, setListEvent, setMe, setIsDialogOpen, hoursAddEvent, setHoursAddEvent } = useContext(GlobalContext);
-  const [calendarData, setCalendarData] = useState<DayInfo[]>([]);
+  const { actualDate, setActualEditDate, calendarView, idUserList, ListUsers, listEvent, setListEvent , setMe, setIsDialogOpen, hoursAddEvent, setHoursAddEvent } = useContext(GlobalContext);
+  const [calendarData, setCalendarData] = useState([]);
   const [nbtLigne, setNbtLigne] = useState(5);
   const [loading, setLoading] = useState(true);
   const offsetYRef = useRef(0);
@@ -38,12 +30,15 @@ export const MyCalendar = () => {
         },
       });
 
-      if (!res.ok) throw new Error('Token invalide ou expiré');
+      if (!res.ok) {
+        throw new Error('Token invalide ou expiré');
+      }
 
       const data = await res.json();
-      setMe(data.user);
+      
+      setMe(data.user)
       setLoading(false);
-    } catch {
+    } catch (error) {
       router.push('/login');
     }
   };
@@ -52,9 +47,9 @@ export const MyCalendar = () => {
     verifyToken();
   }, []);
 
-  const fetchEvents = async (date: Date) => {
+  const fetchEvents = async (date) => {
     const baseDate = new Date(date);
-    let startDate: string, endDate: string;
+    let startDate, endDate;
 
     if (calendarView === "month") {
       const firstDayOfMonth = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
@@ -70,24 +65,30 @@ export const MyCalendar = () => {
       lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
       startDate = firstDayOfWeek.toISOString().split('T')[0];
       endDate = lastDayOfWeek.toISOString().split('T')[0];
-    } else {
+    } else if (calendarView === "day") {
       startDate = baseDate.toISOString().split('T')[0];
       endDate = baseDate.toISOString().split('T')[0];
     }
 
     const res = await fetch(`/api/events?startDate=${startDate}&endDate=${endDate}`);
-    if (!res.ok) return [];
+
+    if (!res.ok) {
+      console.error('Erreur lors de la récupération des événements:', res.statusText);
+      return [];
+    }
 
     try {
-      return await res.json();
-    } catch {
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      console.error('Erreur lors du parsing JSON:', error);
       return [];
     }
   };
 
-  const updateEventDate = async (eventId: string, newDate: Date) => {
+  const updateEventDate = async (eventId, newDate) => {
     try {
-      const formattedNewDate = newDate.toISOString();
+      const formattedNewDate = newDate.toISOString(); 
       const res = await fetch(`/api/events/${eventId}`, {
         method: 'PUT',
         headers: {
@@ -96,13 +97,14 @@ export const MyCalendar = () => {
         body: JSON.stringify({ date: formattedNewDate }),
       });
       if (!res.ok) throw new Error('Erreur lors de la mise à jour de la date de l\'événement');
-      return await res.json();
+      const updatedEvent = await res.json();
+      return updatedEvent;
     } catch (error) {
       console.error(error);
     }
   };
 
-  const updateEventDebutAt = async (eventId: string, newDebutAt: string) => {
+  const updateEventDebutAt = async (eventId, newDebutAt) => {
     try {
       const res = await fetch(`/api/events/${eventId}`, {
         method: 'PUT',
@@ -112,13 +114,14 @@ export const MyCalendar = () => {
         body: JSON.stringify({ debutAt: newDebutAt }),
       });
       if (!res.ok) throw new Error("Erreur lors de la mise à jour de l'événement");
-      return await res.json();
+      const updatedEvent = await res.json();
+      return updatedEvent;
     } catch (error) {
       console.error(error);
     }
   };
 
-  const generateMonthView = async (date: Date) => {
+  const generateMonthView = async (date) => {
     const today = new Date();
     const firstDayOfMonth = new Date(Date.UTC(date.getFullYear(), date.getMonth(), 1));
     const lastDayOfMonth = new Date(Date.UTC(date.getFullYear(), date.getMonth() + 1, 0));
@@ -127,14 +130,14 @@ export const MyCalendar = () => {
     let daysAfter = 42 - (daysBefore + lastDayOfMonth.getUTCDate());
     while (daysAfter >= 7) daysAfter -= 7;
 
-    const afterDays: Date[] = [];
+    const afterDays = [];
     for (let i = 1; i <= daysAfter; i++) {
         afterDays.push(new Date(Date.UTC(date.getFullYear(), date.getMonth() + 1, i)));
     }
 
     setNbtLigne((daysBefore + lastDayOfMonth.getUTCDate() + daysAfter) / 7);
 
-    const calendarDays: DayInfo[] = [];
+    const calendarDays = [];
 
     const previousMonthLastDay = new Date(Date.UTC(date.getFullYear(), date.getMonth(), 0)).getUTCDate();
     for (let i = daysBefore; i > 0; i--) {
@@ -165,8 +168,8 @@ export const MyCalendar = () => {
     return calendarDays;
   };
 
-  const generateWeekView = async (date: Date) => {
-    const calendarDays: DayInfo[] = [];
+  const generateWeekView = async (date) => {
+    const calendarDays = [];
     const startOfWeek = new Date(date);
     const today = new Date();
     const dayOfWeek = startOfWeek.getUTCDay();
@@ -193,7 +196,7 @@ export const MyCalendar = () => {
     return calendarDays;
   };
 
-  const generateDayView = async (date: Date) => {
+  const generateDayView = async (date) => {
     const startOfDay = new Date(date);
     const currentDate = new Date(startOfDay);
     const today = new Date();
@@ -210,7 +213,7 @@ export const MyCalendar = () => {
     }];
   };
 
-  const generateCalendar = async (date: Date) => {
+  const generateCalendar = async (date) => {
     switch (calendarView) {
       case 'month':
         return generateMonthView(date);
@@ -223,12 +226,12 @@ export const MyCalendar = () => {
     }
   };
 
-  const handleDragStart = (event: React.DragEvent) => {
-    const eventBox = (event.target as HTMLElement).getBoundingClientRect();
+  const handleDragStart = (event) => {
+    const eventBox = event.target.getBoundingClientRect();
     offsetYRef.current = event.clientY - eventBox.top;
   };
 
-  const handleDragOver = (event: React.DragEvent) => {
+  const handleDragOver = (event) => {
     event.preventDefault();
   };
 
@@ -239,14 +242,15 @@ export const MyCalendar = () => {
     });
   };
 
-  const handleDrop = async (event: React.DragEvent, newDay: number) => {
+  const handleDrop = async (event, newDay) => {
     const eventId = event.dataTransfer.getData('eventId');
+    const oldDay = parseInt(event.dataTransfer.getData('oldDay'), 10);
     const newDate = new Date(Date.UTC(actualDate.getFullYear(), actualDate.getMonth(), newDay));
 
     let hour = 0;
     let minutes = 0;
     if (calendarView === 'week' || calendarView === 'day') {
-      const hoursContainer = (event.currentTarget as HTMLElement).querySelector('.hours-container') as HTMLElement;
+      const hoursContainer = event.currentTarget.querySelector('.hours-container');
       if (hoursContainer) {
         const rect = hoursContainer.getBoundingClientRect();
         const offsetY = event.clientY - rect.top - offsetYRef.current;
@@ -278,23 +282,50 @@ export const MyCalendar = () => {
     recupEvents();
   };
 
-  const handleDoubleClick = async (dayInfo: DayInfo, event: React.MouseEvent) => {
-    let hour: string | null = null, minutes: string | null = null;
+  const renderHourLabels = () => {
+    const hours = [];
+    for (let i = 0; i < 24; i++) {
+      hours.push(
+        <div key={`label-hour-${i}`} className="flex text-[.65rem] flex-col justify-center items-center h-[10vh] border-t border-gray-300">
+          <div>{i}:00</div>
+        </div>
+      );
+    }
+    return hours;
+  };
+
+  const renderTimeSlots = () => {
+    const hours = [];
+    for (let i = 0; i < 24; i++) {
+      hours.push(
+        <div key={`hour-${i}`} className="flex flex-col border-t border-gray-300 h-[5vh]">
+          <div className="half-hour h-1/2 border-b border-gray-200"></div>
+          <div className="half-hour h-1/2"></div>
+        </div>
+      );
+    }
+    return hours;
+  };
+
+  const handleDoubleClick = async (dayInfo, event) => {
+    let hour = null, minutes = null;
     if(calendarView !== 'month') {
       if (calendarView === 'week' || calendarView === 'day') {
-        const hoursContainer = (event.currentTarget as HTMLElement).querySelector('.hours-container') as HTMLElement;
+        const hoursContainer = event.currentTarget.querySelector('.hours-container');
         if (hoursContainer) {
           const rect = hoursContainer.getBoundingClientRect();
           const offsetY = event.clientY - rect.top;
           const totalHeight = rect.height;
           const totalSlots = 48;
           const slot = Math.floor((offsetY / totalHeight) * totalSlots);
-          hour = (Math.floor(slot / 2)).toString();
-          minutes = ((slot % 2) * 30).toString();
+          hour = (Math.floor(slot / 2)) + '';
+          minutes = ((slot % 2) * 30)  + '';
         }
       }
-      const heureAddEvent = `${hour?.padStart(2, '0')}:${minutes?.padStart(2, '0')}`;
-      await setHoursAddEvent(heureAddEvent);
+      const heureAddEvent = `${hour.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+      await setHoursAddEvent(heureAddEvent)
+      console.log(heureAddEvent);
+      
     }
     const addEventInDate = new Date(Date.UTC(actualDate.getFullYear(), actualDate.getMonth(), dayInfo.day)).toISOString().split('T')[0];
     
@@ -320,46 +351,202 @@ export const MyCalendar = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Spinner />
+        <Spinner /> {/* Icône de chargement */}
       </div>
     );
   }
 
   return (
-    <div className={`p-1 w-full h-full flex${calendarView !== 'month' ? ' overflow-x-hidden' : ''}`}>
-      {calendarView !== 'month' && (
-        <div className="listHeure w-[3rem] flex flex-col">
-          {/* Render hour labels here */}
-        </div>
-      )}
-      <div className="flex relative w-full h-full flex-col">
-        <CalendarTopBar />
-        <div
-          className={`
-            ${calendarView === 'month' ? `grid grid-cols-7 grid-rows-${nbtLigne}` : ''}
-            ${calendarView === 'week' ? 'grid grid-cols-7' : ''}
-            ${calendarView === 'day' ? 'grid grid-cols-1' : ''}
-            gap-0 border border-gray-200 rounded-lg h-full flex-grow
-          `}
-        >
-          {calendarData.map((dayInfo, index) => (
-            <div
-              key={index}
-              className={`border border-gray-100 flex flex-col ${dayInfo.isCurrentMonth ? 'bg-white text-black' : 'bg-gray-100 text-gray-400'}`}
-              onDragOver={handleDragOver}
-              onDragStart={handleDragStart}
-              onDrop={(event) => handleDrop(event, dayInfo.day)}
-              onDoubleClick={(event) => handleDoubleClick(dayInfo, event)}
-            >
-              <div className={`dayNumber${dayInfo.isToday ? ' inDay' : ''}`}>
-                {dayInfo.day}
+    <>
+      <div className={`p-1 w-full h-full flex${calendarView !== 'month' ? ' overflow-x-hidden': ''}`}>
+        {calendarView !== 'month' && (
+          <div className="listHeure w-[3rem] flex flex-col">
+            {renderHourLabels()}
+          </div>
+        )}
+        <div className="flex relative w-full h-full flex-col">
+          <CalendarTopBar />
+          <div
+            className={`
+              ${calendarView === 'month' ? `grid grid-cols-7 grid-rows-${nbtLigne}` : ''}
+              ${calendarView === 'week' ? 'grid grid-cols-7' : ''}
+              ${calendarView === 'day' ? 'grid grid-cols-1' : ''}
+              gap-0 border border-gray-200 rounded-lg h-full flex-grow
+            `}
+          >
+            {calendarData.map((dayInfo, index) => (
+              <div
+                key={index}
+                className={`border border-gray-100 flex flex-col ${
+                  dayInfo.isCurrentMonth ? 'bg-white text-black' : 'bg-gray-100 text-gray-400'
+                }`}
+                onDragOver={handleDragOver}
+                onDragStart={(e) => handleDragStart(e)}
+                onDrop={(event) => handleDrop(event, dayInfo.day)}
+                onDoubleClick={(event) => handleDoubleClick(dayInfo, event)}
+              >
+                <div className={`dayNumber${dayInfo.isToday ? ' inDay' : ''}`}>
+                  {dayInfo.day}
+                </div>
+
+                {calendarView === 'month' && (
+                  <div className="events-container mt-1 overflow-x-hidden max-h-[12vh]">
+                    {listEvent.filter(event => {
+                        const eventDate = new Date(event.date);
+                        const dayDate = new Date(dayInfo.date);
+
+                        const isSameDay = eventDate.getUTCFullYear() === dayDate.getUTCFullYear() &&
+                                          eventDate.getUTCMonth() === dayDate.getUTCMonth() &&
+                                          eventDate.getUTCDate() === dayDate.getUTCDate();
+
+                        const userIds = event.userId.split('/').map(id => parseInt(id));
+                        const hasMatchingUser = userIds.some(userId => idUserList.includes(userId));
+
+                        return isSameDay && hasMatchingUser;
+                      })
+                      .slice(0, 2).map((event, eventIndex) => {
+                        const eventDebut = new Date(event.debutAt);
+                        const user = ListUsers.filter(use => use.id === parseInt(event.userId));
+                        const formattedHour = eventDebut.getUTCHours().toString().padStart(2, '0');
+                        const formattedMinutes = eventDebut.getUTCMinutes().toString().padStart(2, '0');
+
+                        const userIds = event.userId.split('/').map(id => parseInt(id));
+
+                        return (
+                          <Event
+                            style={{ '--c': user[0].color }}
+                            key={eventIndex}
+                            eventKey={event.id}
+                            event={event}
+                            formattedHour={formattedHour}
+                            formattedMinutes={formattedMinutes}
+                            eventIndex={eventIndex}
+                            className={`event${event.fullDay ? ' fullDay' : ''}${userIds.length > 1 ? ' groupe' : ''} p-1 mb-1 rounded`}
+                          />
+                        );
+                      })}
+                    {listEvent.filter(event => {
+                      const eventDate = new Date(event.date);
+                      const dayDate = new Date(dayInfo.date);
+
+                      const isSameDay = eventDate.getUTCFullYear() === dayDate.getUTCFullYear() &&
+                                        eventDate.getUTCMonth() === dayDate.getUTCMonth() &&
+                                        eventDate.getUTCDate() === dayDate.getUTCDate();
+                      const userIds = event.userId.split('/').map(id => parseInt(id));
+                      const hasMatchingUser = userIds.some(userId => idUserList.includes(userId));
+
+                      return isSameDay && hasMatchingUser;
+                    }).length > 2 && (
+                      <div className="more-events text-xs text-gray-500">
+                        +{listEvent.filter(event => {
+                          const eventDate = new Date(event.date);
+                          const dayDate = new Date(dayInfo.date);
+
+                          const isSameDay = eventDate.getUTCFullYear() === dayDate.getUTCFullYear() &&
+                                            eventDate.getUTCMonth() === dayDate.getUTCMonth() &&
+                                            eventDate.getUTCDate() === dayDate.getUTCDate();
+                          const userIds = event.userId.split('/').map(id => parseInt(id));
+                          const hasMatchingUser = userIds.some(userId => idUserList.includes(userId));
+
+                          return isSameDay && hasMatchingUser;
+                        }).length - 2} autres
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {calendarView === 'week' && (
+                  <div className="hours-container flex-grow overflow-auto relative">
+                    {renderTimeSlots()}
+                    <div className="absolute inset-0 overflow-hidden">
+                      {listEvent.map((event, eventIndex) => {
+                        const eventDate = new Date(event.date);
+                        const dayDate = new Date(dayInfo.date);
+
+                        const isSameDay = eventDate.getUTCFullYear() === dayDate.getUTCFullYear() &&
+                                          eventDate.getUTCMonth() === dayDate.getUTCMonth() &&
+                                          eventDate.getUTCDate() === dayDate.getUTCDate();
+
+                        if(isSameDay && idUserList.includes(parseInt(event.userId))) {
+                          const eventDebut = new Date(event.debutAt);
+                          const eventFin = new Date(event.finAt);
+                          const user = ListUsers.filter(use => use.id === parseInt(event.userId));
+                          const top = (eventDebut.getUTCHours() + eventDebut.getUTCMinutes() / 60) * 5;
+                          const duration = (eventFin.getTime() - eventDebut.getTime()) / (1000 * 60 * 60);
+                          const height = duration * 5;
+
+                          const formattedHour = eventDebut.getUTCHours().toString().padStart(2, '0');
+                          const formattedMinutes = eventDebut.getUTCMinutes().toString().padStart(2, '0');
+
+                          const userIds = event.userId.split('/').map(id => parseInt(id));
+
+                          return (
+                            <Event
+                              style={{ top: `${top}vh`, height: `${height}vh`, zIndex: 50 - (duration * 2), '--c': user[0].color }}
+                              key={eventIndex}
+                              eventKey={event.id}
+                              event={event}
+                              formattedHour={formattedHour}
+                              formattedMinutes={formattedMinutes}
+                              eventIndex={eventIndex}
+                              className={`event${userIds.length > 1 ? ' groupe' : ''} editable absolute left-0 w-full overflow-x-hidden`}
+                              heightEditable={(event.fullDay) ? '' : 'true'}
+                            />
+                          );
+                        }
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {calendarView === 'day' && (
+                  <div className="hours-container flex-grow overflow-auto relative">
+                    {renderTimeSlots()}
+                    <div className="absolute inset-0 overflow-hidden">
+                      {listEvent.map((event, eventIndex) => {
+                        const eventDate = new Date(event.date);
+                        const dayDate = new Date(dayInfo.date);
+
+                        const isSameDay = eventDate.getUTCFullYear() === dayDate.getUTCFullYear() &&
+                                          eventDate.getUTCMonth() === dayDate.getUTCMonth() &&
+                                          eventDate.getUTCDate() === dayDate.getUTCDate();
+
+                        if(isSameDay && idUserList.includes(event.userId)) {
+                          const eventDebut = new Date(event.debutAt);
+                          const eventFin = new Date(event.finAt);
+                          const user = ListUsers.filter(use => use.id === event.userId);
+                          const top = (eventDebut.getUTCHours() + eventDebut.getUTCMinutes() / 60) * 5;
+                          const duration = (eventFin.getTime() - eventDebut.getTime()) / (1000 * 60 * 60);
+                          const height = duration * 5;
+
+                          const formattedHour = eventDebut.getUTCHours().toString().padStart(2, '0');
+                          const formattedMinutes = eventDebut.getUTCMinutes().toString().padStart(2, '0');
+
+                          return (
+                            <Event
+                              style={{ top: `${top}vh`, height: `${height}vh`, '--c': user[0].color }}
+                              key={eventIndex}
+                              eventKey={event.id}
+                              event={event}
+                              formattedHour={formattedHour}
+                              formattedMinutes={formattedMinutes}
+                              eventIndex={eventIndex}
+                              className="event editable absolute left-0 w-full overflow-x-hidden"
+                              heightEditable="true"
+                            />
+                          );
+                        }
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
-              {/* Render events */}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+
+        <PopupBox heureAddEvent={hoursAddEvent} />
       </div>
-      <PopupBox heureAddEvent={hoursAddEvent} />
-    </div>
+    </>
   );
 };
